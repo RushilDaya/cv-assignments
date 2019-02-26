@@ -6,7 +6,6 @@ def convert2gray(frame, argsObj={}):
     temp = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     final = cv2.cvtColor(temp, cv2.COLOR_GRAY2BGR)
     cv2.putText(final,"GRAYSCALE", (50,50), cv2.FONT_HERSHEY_SIMPLEX, 2, 150)
-    print(argsObj['percent_complete'])
     return final
 
 def none(frame, argsObj={}):
@@ -14,11 +13,17 @@ def none(frame, argsObj={}):
     return frame
 
 def grayScaleSmoothing(frame, argsObj={}):
-    # perform a non-edge preserving filter
+    # perform a changing gaussian filter
+    KERNEL_SIZE = argsObj['kernel_size']
+    VARIANCE_START_VALUE = argsObj['variance_start_value']
+    VARIANCE_END_VALUE = argsObj['variance_end_value']
+    PERCENT_COMPLETE = argsObj['percent_complete']
+
+    # determine the variance based on the percentage complete
+    VARIANCE = (VARIANCE_END_VALUE - VARIANCE_START_VALUE)*(PERCENT_COMPLETE/100)-VARIANCE_START_VALUE
+    
     temp = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-
-    filtered = cv2.GaussianBlur(temp,(5,5),0)
-
+    filtered = cv2.GaussianBlur(temp,(KERNEL_SIZE,KERNEL_SIZE),VARIANCE)
     final = cv2.cvtColor(filtered, cv2.COLOR_GRAY2BGR)
     cv2.putText(final,"GAUSSIAN FILTER", (50,50), cv2.FONT_HERSHEY_SIMPLEX, 2, 150)
     return final
