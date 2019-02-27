@@ -56,13 +56,35 @@ def grabRGB(frame, argsObj={}):
     mask = red - green # color combination and thereshold determined empirically
     mask[mask>200] = 0
     mask[mask<70] = 0
-    mask[mask>70] = 1
+    mask[mask>=70] = 1
 
     frame[:,:,0] = blue*mask
     frame[:,:,1] = green*mask
     frame[:,:,2] = red*mask
 
     cv2.putText(frame,"GRAB BY RGB", (50,50), cv2.FONT_HERSHEY_SIMPLEX, 2, 150)
+    return frame
+
+def grabMorp(frame, argsObj={}):
+
+    # extract just the red channel 
+    blue = frame[:,:,0]
+    green = frame[:,:,1]
+    red = frame[:,:,2]
+
+    mask = red - green # color combination and thereshold determined empirically
+    mask[mask>200] = 0
+    mask[mask<70] = 0
+    mask[mask>=70] = 1
+
+    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(18,18))
+    mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)
+
+    frame[:,:,0] = blue*mask
+    frame[:,:,1] = green*mask
+    frame[:,:,2] = red*mask
+
+    cv2.putText(frame,"GRAB BY RGB WITH CLOSING", (50,50), cv2.FONT_HERSHEY_SIMPLEX, 2, 150)
     return frame
 
 def grabHSV(frame, argsObj={}):
@@ -73,12 +95,12 @@ def grabHSV(frame, argsObj={}):
     saturation = frame[:,:,1]
     value = frame[:,:,2]
 
-    mask = value
-    mask[mask>185]=0
-    mask[mask<165]=0
+    mask = hue
+    mask[mask>110]=0
+    mask[mask<90]=0
 
 
-    final = mask#cv2.cvtColor(mask,cv2.COLOR_GRAY2BGR)
+    final = mask #cv2.cvtColor(mask,cv2.COLOR_GRAY2BGR)
     return final
 
 EFFECT_2_FUNCTION = {
@@ -88,7 +110,7 @@ EFFECT_2_FUNCTION = {
     'color': none,
     'grab-object-rgb': grabRGB,
     'grab-object-hsv': grabHSV,
-    'grab-object-morph': none,
+    'grab-object-rgb-morp': grabMorp,
     'creative': none,
     'none':none
 }
