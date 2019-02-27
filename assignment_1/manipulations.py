@@ -1,5 +1,6 @@
 import numpy as np 
 import cv2
+import math
 
 
 def convert2gray(frame, argsObj={}):
@@ -30,18 +31,55 @@ def grayScaleSmoothing(frame, argsObj={}):
 
 def grayScaleEdgePreserve(frame, argsObj={}):
     # perform a smoothing operation which preserves edges
-    temp = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    filtered = cv2.bilateralFilter(temp,9,75,75 )
+    MIN_APPLICATIONS = argsObj['min_applications']
+    MAX_APPLICATIONS = argsObj['max_applications']
+    PERCENT_COMPLETE = argsObj['percent_complete']
 
-    final = cv2.cvtColor(filtered, cv2.COLOR_GRAY2BGR)
+    NUM_APPLICATIONS = math.ceil((MAX_APPLICATIONS - MIN_APPLICATIONS)*(PERCENT_COMPLETE/100)+MIN_APPLICATIONS)
+    
+    temp = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    for i in range(NUM_APPLICATIONS):
+        print(i)
+        temp = cv2.bilateralFilter(temp, 5, 75,75)
+
+    final = cv2.cvtColor(temp, cv2.COLOR_GRAY2BGR)
     cv2.putText(final,"BILATERAL FILTER", (50,50), cv2.FONT_HERSHEY_SIMPLEX, 2, 150)
     return final
 
 def grabRGB(frame, argsObj={}):
-    # attempting to grab the green sponge in the video
+
+    # extract just the red channel 
+    blue = frame[:,:,0]
+    green = frame[:,:,1]
+    red = frame[:,:,2]
+
+    mask = red - green # color combination and thereshold determined empirically
+    mask[mask>200] = 0
+    mask[mask<70] = 0
+    mask[mask>70] = 1
+
+    frame[:,:,0] = blue*mask
+    frame[:,:,1] = green*mask
+    frame[:,:,2] = red*mask
+
+    cv2.putText(frame,"GRAB BY RGB", (50,50), cv2.FONT_HERSHEY_SIMPLEX, 2, 150)
     return frame
 
+def grabHSV(frame, argsObj={}):
+    # use hsv space to grab the object
+    hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
 
+    hue = frame[:,:,0]
+    saturation = frame[:,:,1]
+    value = frame[:,:,2]
+
+    mask = value
+    mask[mask>185]=0
+    mask[mask<165]=0
+
+
+    final = mask#cv2.cvtColor(mask,cv2.COLOR_GRAY2BGR)
+    return final
 
 EFFECT_2_FUNCTION = {
     'grayscale':convert2gray,
@@ -49,7 +87,7 @@ EFFECT_2_FUNCTION = {
     'grayscale-edge-preserve':grayScaleEdgePreserve,
     'color': none,
     'grab-object-rgb': grabRGB,
-    'grab-object-hsv': none,
+    'grab-object-hsv': grabHSV,
     'grab-object-morph': none,
     'creative': none,
     'none':none
@@ -59,7 +97,7 @@ def getMethod(frame_number, frame_rate, effects):
     keySet = list(effects.keys())
     timePoint = frame_number/frame_rate
 
-    method = effects[keySet[-1]]
+    effectObj = effects[keySet[-1]]
     for i in range(len(keySet)):
         if timePoint < keySet[i]:
             effectObj = effects[keySet[i-1]]

@@ -104,6 +104,7 @@ venv.bak/
 .mypy_cache/
 
 # VIDEOS
-.mp4
-.avi
-.mjpg
+*.mp4
+*.avi
+*.mjpg
+*.webm
