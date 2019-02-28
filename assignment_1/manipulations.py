@@ -103,6 +103,37 @@ def grabHSV(frame, argsObj={}):
     cv2.putText(frame,"GRAB BY HSV", (50,50), cv2.FONT_HERSHEY_SIMPLEX, 2, 150)
     return frame
 
+def detectFaces(frame, argsObj={}):
+    # haar cascade based face detection
+    # based on tutorial from https://docs.opencv.org/3.4.3/d7/d8b/tutorial_py_face_detection.html
+
+    face_cascade = cv2.CascadeClassifier('haar_face_cascade.xml')
+
+    grayImage = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    faces = face_cascade.detectMultiScale(grayImage, 1.3, 5)
+    for (x,y,w,h) in faces:
+        cv2.rectangle(frame, (x,y), (x+w, y+h), (255,0,0),2)
+    
+    cv2.putText(frame,"FACE DETECTION", (50,50), cv2.FONT_HERSHEY_SIMPLEX, 2, 150)
+    return frame
+
+def facialBlurring(frame, argsObj={}):
+    # detection based on the detect faces routine
+    # additional effect of blurring
+
+    face_cascade = cv2.CascadeClassifier('haar_face_cascade.xml')
+    grayImage = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    faces = face_cascade.detectMultiScale(grayImage, 1.3, 5)
+
+    BlurredFrame = cv2.GaussianBlur(frame,(51,51),51)
+
+    for (x,y,w,h) in faces:
+        frame[y:y+h,x:x+w,:]=BlurredFrame[y:y+h,x:x+w,:]
+
+    cv2.putText(frame,"BLUR FACE", (50,50), cv2.FONT_HERSHEY_SIMPLEX, 2, 150)
+    return frame
+
+
 EFFECT_2_FUNCTION = {
     'grayscale':convert2gray,
     'grayscale-smoothing':grayScaleSmoothing,
@@ -112,6 +143,8 @@ EFFECT_2_FUNCTION = {
     'grab-object-hsv': grabHSV,
     'grab-object-rgb-morp': grabMorp,
     'creative': none,
+    'face-detect': detectFaces,
+    'face-blur': facialBlurring,
     'none':none
 }
 
