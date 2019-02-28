@@ -18,7 +18,8 @@ EFFECTS = {
     25 : {'name':'grab-object-hsv','len':5},
     30 : {'name':'grab-object-rgb-morp','len':5},
     35 : {'name':'face-detect','len':5},
-    40 : {'name':'face-blur','len':20}
+    40 : {'name':'face-blur','len':5},
+    45 : {'name':'laplace-filter','len':15}
 }
 
 # define i/o objects 

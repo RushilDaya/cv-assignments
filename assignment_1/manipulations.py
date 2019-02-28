@@ -133,6 +133,25 @@ def facialBlurring(frame, argsObj={}):
     cv2.putText(frame,"BLUR FACE", (50,50), cv2.FONT_HERSHEY_SIMPLEX, 2, 150)
     return frame
 
+def laplacianFiltering(frame, argsObj={}):
+    # laplacian filter with pre- and post- smoothing to improve
+    # the filter
+    grayImage = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    grayImage = cv2.GaussianBlur(frame[:,:,2],(21,21),21)
+    laplacian = cv2.Laplacian(grayImage,cv2.CV_64F)
+    
+    laplacian = cv2.blur(laplacian, (11,11))
+    mini = np.min(laplacian)
+    maxi = np.max(laplacian)
+    laplacian = (1/(maxi-mini))*(laplacian - mini)
+    laplacian[laplacian<0.65] = 0
+    laplacian=laplacian*255
+    laplacian = np.uint8(laplacian)
+    laplacian = cv2.cvtColor(laplacian, cv2.COLOR_GRAY2BGR)
+    cv2.putText(laplacian,"SMOOTH LAPLACIAN", (50,50), cv2.FONT_HERSHEY_SIMPLEX, 2, 150)
+    
+    return laplacian
+
 
 EFFECT_2_FUNCTION = {
     'grayscale':convert2gray,
@@ -145,6 +164,7 @@ EFFECT_2_FUNCTION = {
     'creative': none,
     'face-detect': detectFaces,
     'face-blur': facialBlurring,
+    'laplace-filter': laplacianFiltering,
     'none':none
 }
 
