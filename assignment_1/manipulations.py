@@ -78,30 +78,30 @@ def grabMorp(frame, argsObj={}):
     mask[mask>=70] = 1
 
     kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(18,18))
-    mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)
+    mask_2 = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)
 
-    frame[:,:,0] = blue*mask
-    frame[:,:,1] = green*mask
-    frame[:,:,2] = red*mask
+    frame[:,:,0] = mask*255
+    frame[:,:,1] = mask_2*255
+    frame[:,:,2] = 0
 
     cv2.putText(frame,"GRAB BY RGB WITH CLOSING", (50,50), cv2.FONT_HERSHEY_SIMPLEX, 2, 150)
     return frame
 
 def grabHSV(frame, argsObj={}):
-    # use hsv space to grab the object
     hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
 
-    hue = frame[:,:,0]
-    saturation = frame[:,:,1]
-    value = frame[:,:,2]
+    hue = np.copy(hsv[:,:,0]) # hue tracking was found to be the most realiable
+    hue[hue > 179 ] = 0
+    hue[hue < 177 ] = 0
+    hue[hue > 0] = 1
+    
+    
+    frame[:,:,0] = frame[:,:,0]*hue
+    frame[:,:,1] = frame[:,:,1]*hue
+    frame[:,:,2] = frame[:,:,2]*hue
 
-    mask = hue
-    mask[mask>110]=0
-    mask[mask<90]=0
-
-
-    final = mask #cv2.cvtColor(mask,cv2.COLOR_GRAY2BGR)
-    return final
+    cv2.putText(frame,"GRAB BY HSV", (50,50), cv2.FONT_HERSHEY_SIMPLEX, 2, 150)
+    return frame
 
 EFFECT_2_FUNCTION = {
     'grayscale':convert2gray,
