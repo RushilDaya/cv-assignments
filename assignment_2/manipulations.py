@@ -80,9 +80,57 @@ def canny(frame, argsObj ={}):
                  (50,50), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0,255,255))
     return cannyEdges
 
+def houghLine(frame, argsObj={}):
+    # code adapted from opencv docs
+    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    edges = cv2.Canny(gray, 70, 200)
+    lines = cv2.HoughLines(edges, 1, np.pi/180, 100)
+    try:
+        for rho,theta in lines[0]:
+            a = np.cos(theta)
+            b = np.sin(theta)
+            x0 = a*rho
+            y0 = b*rho
+            x1 = int(x0 + 1000*(-b))
+            y1 = int(y0 + 1000*(a))
+            x2 = int(x0 - 1000*(-b))
+            y2 = int(y0 - 1000*(a))
+
+            cv2.line(frame,(x1,y1),(x2,y2),(0,0,255),2)
+    except:
+        pass    
+
+    return frame
+
+def houghCircle(frame, argsObj={}):
+    # pretty finicky algorithm 
+    # dp: the resolution downgrade factor between hough space and actual
+    # minDist: how close can 2 circle centers be
+    # param1: the upper threshold of the internal canny filter (lower bound is half)
+    # param2: accumulator threshold (smaller -> means more circles detected)
+    # minRadius:
+    # maxRadius:
+    frame = cv2.medianBlur(frame, 5)
+    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    circles = cv2.HoughCircles(gray, cv2.HOUGH_GRADIENT,dp=20,minDist=50,
+                               param1=150,param2=350,minRadius=0,maxRadius=80)
+    try:
+        circles = np.uint16(np.around(circles))
+        for i in circles[0,:]:
+            # draw the outer circle
+            cv2.circle(frame,(i[0],i[1]),i[2],(0,255,0),2)
+            # draw the center of the circle
+            cv2.circle(frame,(i[0],i[1]),2,(0,0,255),3)
+    except:
+        pass
+    return frame
+    
+
 EFFECT_2_FUNCTION = {
     'sobel': sobel,
-    'canny': canny
+    'canny': canny,
+    'hough-line':houghLine,
+    'hough-circle': houghCircle
 }
 
 def getMethod(frame_number, frame_rate, effects):
