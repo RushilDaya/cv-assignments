@@ -2,6 +2,8 @@ import numpy as np
 import cv2
 import math
 
+# 
+
 def _GET_KERNEL_SIZE(minSize, maxSize, percentComplete):
 
     if minSize % 2 == 0 or maxSize % 2 == 0:
@@ -32,7 +34,7 @@ def sobel(frame, argsObj={}):
     max_kernel = argsObj['kernel_end_size']
     percent_complete = argsObj['percent_complete']
     kernel_size = _GET_KERNEL_SIZE(min_kernel,max_kernel,percent_complete)
-    
+
     # get horizontal sobel
     sobelHorizontal = cv2.Sobel(frameGray,cv2.CV_64F,0,1, ksize=kernel_size)
     sobelHorizontal = _numeric_scaling(sobelHorizontal)
