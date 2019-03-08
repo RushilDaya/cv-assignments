@@ -2,7 +2,7 @@ import numpy as np
 import cv2
 import math
 
-
+#_____________HELPER FUNCTIONS _________________________________________________
 
 def _GET_KERNEL_SIZE(minSize, maxSize, percentComplete):
 
@@ -16,11 +16,24 @@ def _GET_KERNEL_SIZE(minSize, maxSize, percentComplete):
 
     return min(tempValue, maxSize)
 
+def _CANNY_GET_LOWER(lowerBound, difference, percentComplete):
+
+    maxLower = 255 - difference
+
+    tempValue = int(0.01*percentComplete*(maxLower-lowerBound)+lowerBound)
+    return min(tempValue, maxLower)
+
+#_____________MANIPULATION FUNCTIONS __________________________________________    
+
 def sobel(frame, argsObj={}):
     # perform simple horizontal and vertical 
     # sobel filters
 
     def _numeric_scaling(sobelFrame):
+        # abs allows us to view both l/r or t/b edges
+        # but we loose the information of the direction of the gradient
+        # not important here, but it can be used in other
+        # techniques such as the canny edge detection
         sobelFrame = np.abs(sobelFrame)
         mini = np.min(sobelFrame)
         maxi = np.max(sobelFrame)
@@ -50,9 +63,26 @@ def sobel(frame, argsObj={}):
     cv2.putText(frame,'SOBEL (kernel size: '+str(kernel_size)+')', (50,50), cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255))
     return frame
 
+def canny(frame, argsObj ={}):
+
+    lower_bound = argsObj['lower_threshold_start']
+    difference =  argsObj['threshold_gap']
+    percent_complete = argsObj['percent_complete']
+
+    LOWER_THRESHOLD = _CANNY_GET_LOWER(lower_bound, difference, percent_complete)
+    UPPER_THRESHOLD = LOWER_THRESHOLD + difference
+
+    frameGray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    cannyEdges = cv2.Canny(frameGray,LOWER_THRESHOLD, UPPER_THRESHOLD)
+
+    cannyEdges = cv2.cvtColor(cannyEdges, cv2.COLOR_GRAY2BGR)
+    cv2.putText(cannyEdges,'CANNY EDGE DETECTOR (lower threshold '+str(LOWER_THRESHOLD) +')( upper threshold '+str(UPPER_THRESHOLD)+')',
+                 (50,50), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0,255,255))
+    return cannyEdges
 
 EFFECT_2_FUNCTION = {
-    'sobel': sobel
+    'sobel': sobel,
+    'canny': canny
 }
 
 def getMethod(frame_number, frame_rate, effects):

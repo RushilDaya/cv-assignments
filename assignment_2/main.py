@@ -9,7 +9,8 @@ FRAME_RATE = 60.0
 RESOLUTION = (1280, 720)
 
 EFFECTS = {
-    0 :  {'name':'sobel','len':5, 'kernel_start_size':3, 'kernel_end_size':15}
+    0: {'name':'canny', 'len':5, 'lower_threshold_start':10,'threshold_gap':100},
+    500 : {'name':'sobel','len':5, 'kernel_start_size':3, 'kernel_end_size':15}
 }
 
 # define i/o objects 
