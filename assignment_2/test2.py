@@ -12,14 +12,14 @@ SIFT = cv2.xfeatures2d.SIFT_create()
 
 ## process the base image of the dog
 ####################################################
-OBJECT = cv2.imread('dogHead.jpg')
+OBJECT = cv2.imread('oneDog.jpg')
 OBJECT_GRAY = cv2.cvtColor(OBJECT, cv2.COLOR_BGR2GRAY)
 OBJ_KEYS, OBJ_DESCRIPTORS = SIFT.detectAndCompute(OBJECT_GRAY, None)
 
 
 ## process the image of the dog in the grass
 ####################################################
-SCENE = cv2.imread('dogInGrass.jpg')
+SCENE = cv2.imread('fourDog.jpg')
 SCENE_GRAY = cv2.cvtColor(SCENE, cv2.COLOR_BGR2GRAY)
 SCENE_KEYS = SIFT.detect(SCENE_GRAY,None)
 
@@ -37,19 +37,19 @@ scan_center_vertical =   int(OBJECT_HEIGHT/2)
 
 def keyInFrame(pt, x_min, x_max, y_min, y_max):
     x,y = pt 
-    if x > x_min and x < x_max and y > y_min and y > y_max:
+    if x > x_min and x < x_max and y > y_min and y < y_max:
         return True
     else:
         return False
 
-RES_DROP = 30
+RES_DROP = 10
 KNN_SIZE = 2
 FLANN_INDEX_KDTREE = 0
 index_params = dict(algorithm=FLANN_INDEX_KDTREE, trees = 5)
 search_params = dict(checks=50)
 flann = cv2.FlannBasedMatcher(index_params, search_params)
 
-intensityMatrix = np.zeros(( int(end_vertical/RES_DROP), int(end_horizontal/RES_DROP),1), dtype=int)
+intensityMatrix = np.zeros(( int(end_vertical/RES_DROP), int(end_horizontal/RES_DROP)), dtype=int)
 
 for x_idx in range(int(end_horizontal/RES_DROP)):
     print(x_idx)
@@ -66,7 +66,7 @@ for x_idx in range(int(end_horizontal/RES_DROP)):
        elif len(SCENE_DISCRIPTORS) <= KNN_SIZE:
            intensityMatrix[y_idx, x_idx] = 0
        else:
-           matches = flann.knnMatch(OBJ_DESCRIPTORS, SCENE_DISCRIPTORS, k=2)
+           matches = flann.knnMatch(OBJ_DESCRIPTORS, SCENE_DISCRIPTORS, k=KNN_SIZE)
            good = []
            for m,n in matches:
             if m.distance < 0.7*n.distance:
@@ -77,5 +77,6 @@ for x_idx in range(int(end_horizontal/RES_DROP)):
 maxNum = np.max(intensityMatrix)
 intensityMatrix = (1/maxNum)*intensityMatrix
 #intensityMatrix = intensityMatrix.astype(int)
+intensityMatrix = np.flip(intensityMatrix,0)
 cv2.imshow('o',intensityMatrix)
-cv2.waitKey(10000)
+cv2.waitKey(20000)
