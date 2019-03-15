@@ -36,6 +36,6 @@ fc.doSift(templateImage, sceneImage, outputStream ,2, 3)
 
 # release -
 #---------------------------------------------------
-video.release()
+#video.release()
 outputStream.release()
 cv2.destroyAllWindows()
