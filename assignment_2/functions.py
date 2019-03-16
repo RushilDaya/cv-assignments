@@ -1,5 +1,6 @@
 import numpy as np
 import cv2
+import copy
 import helpers as hlp
 
 FRAME_RATE = 60.0
@@ -118,5 +119,47 @@ def doSift(template, scene, outputStream, lengthBox, lengthGreyScale):
         frameIdx +=1
     
     return True
- 
 
+def doSiftVideo(template, inputStream, outputStream, length):
+    sift = cv2.xfeatures2d.SIFT_create()
+    
+    itemGray = cv2.cvtColor(template, cv2.COLOR_BGR2GRAY)
+    itemKeyPoints, itemDescriptors = sift.detectAndCompute(itemGray,None)   
+
+    FLANN_INDEX_KDTREE = 0
+    index_params = dict(algorithm = FLANN_INDEX_KDTREE, trees = 5)
+    search_params = dict(checks=50)
+    flann = cv2.FlannBasedMatcher(index_params, search_params)
+
+    numberFrames = int(length*FRAME_RATE)
+    frameIdx = 0
+    while inputStream.isOpened() and frameIdx < numberFrames:
+        print(frameIdx, numberFrames)
+        ret, frame = inputStream.read()
+        if ret == True:
+            frameGray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+            frameKeyPoints, frameDescriptors = sift.detectAndCompute(frameGray, None)
+            matches = flann.knnMatch(itemDescriptors, frameDescriptors, k=2)
+            good =[]
+            for m,n in matches:
+                if m.distance < 0.7*n.distance:
+                    good.append(m)
+            if len(good)>10:
+                src_pts = np.float32([ itemKeyPoints[m.queryIdx].pt for m in good ]).reshape(-1,1,2)
+                dst_pts = np.float32([ frameKeyPoints[m.trainIdx].pt for m in good ]).reshape(-1,1,2)
+
+                M, mask = cv2.findHomography(src_pts, dst_pts, cv2.RANSAC,5.0)
+                matchesMask = mask.ravel().tolist()
+
+                h,w = itemGray.shape
+                pts = np.float32([ [0,0],[0,h-1],[w-1,h-1],[w-1,0] ]).reshape(-1,1,2)
+                dst = cv2.perspectiveTransform(pts,M)
+                frameCopy = copy.deepcopy(frame)
+                frame = cv2.polylines(frameCopy,[np.int32(dst)],True,(255,70,99),5)
+            outputStream.write(frame)
+        else:
+            pass
+        frameIdx +=1        
+        
+    return True
+ 

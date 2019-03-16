@@ -1,6 +1,7 @@
 import numpy as np
 import copy
 import cv2
+import matplotlib.pyplot as plt
 
 def numericScaling(frame):
     frame = np.abs(frame)
@@ -58,7 +59,7 @@ def keyInFrame(pt, x_min, x_max, y_min, y_max):
 
 #------------------------------------------
 def siftGreyScale(template, sceneX):
-    RESOLUTION_REDUCTION_FACTOR = 100
+    RESOLUTION_REDUCTION_FACTOR = 10
     KNN_SIZE = 2
     FLANN_INDEX_KDTREE = 0
     index_params = dict(algorithm=FLANN_INDEX_KDTREE, trees = 5)
@@ -78,8 +79,8 @@ def siftGreyScale(template, sceneX):
     itemHeight, itemWidth = itemGray.shape
     sceneHeight, sceneWidth = sceneGray.shape
 
-    endHorizontal = int(sceneWidth - itemWidth)
-    endVertical = int(sceneHeight - itemHeight)
+    endHorizontal = int(sceneWidth - itemWidth/2)
+    endVertical = int(sceneHeight - itemHeight/2)
 
     scanCenterHorizontal = int(itemWidth/2)
     scanCenterVertical = int(itemHeight/2)
@@ -116,14 +117,32 @@ def siftGreyScale(template, sceneX):
     #intensityMatrix = np.flip(intensityMatrix) 
 
     # -- need to take the binned data and make it into an image again
-    newScene = np.zeros((sceneHeight,sceneWidth), dtype=int)
+    newScene = np.zeros((sceneHeight,sceneWidth,1), dtype=int)
+    print(endVertical)
+    print(endHorizontal)
     for yPixel in range(sceneHeight):
         for xPixel in range(sceneWidth):
             if yPixel < scanCenterVertical:
                 pass 
-            elif yPixel > scanCenterVertical
+            elif yPixel > endVertical:
+                pass
+            elif xPixel < scanCenterHorizontal:
+                pass 
+            elif xPixel > endHorizontal:
+                pass
+            else:
+                mapX = int(xPixel/RESOLUTION_REDUCTION_FACTOR)
+                mapY = int(yPixel/RESOLUTION_REDUCTION_FACTOR)
+                try:
+                    newScene[yPixel,xPixel]=intensityMatrix[mapY,mapX]*255
+                except:
+                    pass
 
 
-    cv2.imshow('o',intensityMatrix)
-    cv2.waitKey(20000)               
-    return scene
+    #plt.imshow(newScene)
+    #plt.show()
+    newScene = newScene.astype('uint8')
+    newScene = cv2.cvtColor(newScene, cv2.COLOR_GRAY2BGR)
+    #cv2.imshow('o',newScene)
+    #cv2.waitKey(20000)               
+    return newScene
