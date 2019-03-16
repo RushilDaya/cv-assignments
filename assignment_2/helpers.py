@@ -1,4 +1,5 @@
 import numpy as np
+import copy
 import cv2
 
 def numericScaling(frame):
@@ -43,10 +44,86 @@ def siftBoxing(item, scene):
         h,w = itemGray.shape
         pts = np.float32([ [0,0],[0,h-1],[w-1,h-1],[w-1,0] ]).reshape(-1,1,2)
         dst = cv2.perspectiveTransform(pts,M)
-        sceneBlocked = cv2.polylines(scene,[np.int32(dst)],True,(255,70,99),5)
+        sceneCopy = copy.deepcopy(scene)
+        sceneBlocked = cv2.polylines(sceneCopy,[np.int32(dst)],True,(255,70,99),5)
         
     return sceneBlocked
 
+def keyInFrame(pt, x_min, x_max, y_min, y_max):
+    x,y = pt 
+    if x > x_min and x < x_max and y > y_min and y < y_max:
+        return True
+    else:
+        return False
+
 #------------------------------------------
-def siftGreyScale(template, scene):
+def siftGreyScale(template, sceneX):
+    RESOLUTION_REDUCTION_FACTOR = 100
+    KNN_SIZE = 2
+    FLANN_INDEX_KDTREE = 0
+    index_params = dict(algorithm=FLANN_INDEX_KDTREE, trees = 5)
+    search_params = dict(checks=50)
+    flann = cv2.FlannBasedMatcher(index_params, search_params)
+
+
+    scene = copy.deepcopy(sceneX)
+    sift = cv2.xfeatures2d.SIFT_create()
+
+    itemGray = cv2.cvtColor(template, cv2.COLOR_BGR2GRAY)
+    itemKeyPoints, itemDescriptors = sift.detectAndCompute(itemGray,None)
+
+    sceneGray = cv2.cvtColor(scene, cv2.COLOR_BGR2GRAY)
+    sceneKeyPoints = sift.detect(sceneGray, None)
+
+    itemHeight, itemWidth = itemGray.shape
+    sceneHeight, sceneWidth = sceneGray.shape
+
+    endHorizontal = int(sceneWidth - itemWidth)
+    endVertical = int(sceneHeight - itemHeight)
+
+    scanCenterHorizontal = int(itemWidth/2)
+    scanCenterVertical = int(itemHeight/2)
+
+
+
+    intensityMatrix = np.zeros(( int(endVertical/RESOLUTION_REDUCTION_FACTOR), int(endHorizontal/RESOLUTION_REDUCTION_FACTOR)), dtype=int)
+
+    for x_idx in range(int(endHorizontal/RESOLUTION_REDUCTION_FACTOR)):
+        print (x_idx)
+        print (int(endHorizontal/RESOLUTION_REDUCTION_FACTOR))
+        print ('---')
+        for y_idx in range(int(endVertical/RESOLUTION_REDUCTION_FACTOR)):
+            x = x_idx*RESOLUTION_REDUCTION_FACTOR + 0.5*scanCenterHorizontal
+            y = y_idx*RESOLUTION_REDUCTION_FACTOR + 0.5*scanCenterVertical
+
+            sceneKeysFiltered = [kp for kp in sceneKeyPoints if keyInFrame(kp.pt, x-0.5*scanCenterHorizontal, x+0.5*scanCenterHorizontal, y-0.5*scanCenterVertical, y+0.5*scanCenterVertical ) ]
+            (_,sceneDescriptors) = sift.compute(sceneGray, sceneKeysFiltered)
+            
+            if sceneDescriptors is None:
+                intensityMatrix[y_idx, x_idx] = 0
+            elif len(sceneDescriptors) <= KNN_SIZE:
+                intensityMatrix[y_idx, x_idx] = 0
+            else:
+                matches = flann.knnMatch(itemDescriptors, sceneDescriptors, k=KNN_SIZE)
+                good = []
+                for m,n in matches:
+                    if m.distance < 0.7*n.distance:
+                        good.append(m)
+                intensityMatrix[y_idx,x_idx] = len(good)
+
+    maxNum = np.max(intensityMatrix)
+    intensityMatrix = (1/maxNum)*intensityMatrix
+    #intensityMatrix = np.flip(intensityMatrix) 
+
+    # -- need to take the binned data and make it into an image again
+    newScene = np.zeros((sceneHeight,sceneWidth), dtype=int)
+    for yPixel in range(sceneHeight):
+        for xPixel in range(sceneWidth):
+            if yPixel < scanCenterVertical:
+                pass 
+            elif yPixel > scanCenterVertical
+
+
+    cv2.imshow('o',intensityMatrix)
+    cv2.waitKey(20000)               
     return scene

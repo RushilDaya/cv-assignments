@@ -110,12 +110,13 @@ def doSift(template, scene, outputStream, lengthBox, lengthGreyScale):
     while frameIdx < numberFrames:
         outputStream.write(sceneBoxed)
         frameIdx +=1
-    return True
-'''
+
     numberFrames = int(lengthGreyScale*FRAME_RATE)
     frameIdx = 0
     while frameIdx < numberFrames:
         outputStream.write(sceneGreyScale)
         frameIdx +=1
-'''    
+    
+    return True
+ 
 
