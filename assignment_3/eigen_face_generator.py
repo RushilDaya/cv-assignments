@@ -29,6 +29,9 @@ def getImages(pathList):
     images = [(cv2.cvtColor(item, cv2.COLOR_BGR2GRAY)) for item in images]
     return images
 
+def getLabelledFaces():
+    return True
+
 def __unroll(matrix):
     (x,y) = matrix.shape
     values = x*y
