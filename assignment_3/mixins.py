@@ -81,7 +81,7 @@ def unroll(matrix):
 def roll(vector, N):
     return np.reshape(vector,(N,N))
 
-def numMeaningfulVectors(eValues, absolute_max=20):
+def numMeaningfulVectors(eValues, absolute_max=40):
     # the smaller the eval the less important the corr. evec
     # here we try to limit the number of meaningful eVecs
     
@@ -128,3 +128,38 @@ def saveModel(model):
     with open('models/eigenfaces.pickle', 'wb') as handle:
         pickle.dump(model,handle)
     return True
+
+
+def splitSets(pathData,pathTraining, pathTest, numTrain, numTest):
+    # restructures the data into a training and test set
+    persons = os.listdir(pathData)
+    for person in persons:
+        num_extracted = len(os.listdir(pathData+person))
+        if num_extracted < numTest + numTrain:
+            raise TypeError('not enough faces in database')
+    
+    oldImages = []
+    for person in persons:
+        oldImages = oldImages + [pathTraining+person+'/'+item for item in os.listdir(pathTraining+person)]
+        oldImages = oldImages + [pathTest+person+'/'+item for item in os.listdir(pathTest+person)]
+    [(os.remove(item)) for item in oldImages]
+
+    personOneNew = os.listdir(pathData+'person_1')
+    personTwoNew = os.listdir(pathData+'person_2')
+
+    personOneTrain = personOneNew[0:numTrain]
+    personOneTest = personOneNew[numTrain:numTrain+numTest]
+    personTwoTrain = personTwoNew[0:numTrain]
+    personTwoTest = personTwoNew[numTrain:numTrain+numTest]
+
+    for item in personOneTrain:
+        shutil.move(pathData+'person_1/'+item, pathTraining+'person_1/'+item)
+    
+    for item in personOneTest:
+        shutil.move(pathData+'person_1/'+item, pathTest+'person_1/'+item)
+
+    for item in personTwoTrain:
+        shutil.move(pathData+'person_2/'+item, pathTraining+'person_2/'+item)
+
+    for item in personTwoTest:
+        shutil.move(pathData+'person_2/'+item, pathTest+'person_2/'+item)

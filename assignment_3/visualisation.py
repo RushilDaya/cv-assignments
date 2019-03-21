@@ -19,7 +19,7 @@ def _plot(image, p_type='CV2'):
             scale = int(1000.00/w) 
         imageBig = cv2.resize(image,(w*scale,h*scale))
         cv2.imshow('0',imageBig)
-        cv2.waitKey(500)
+        cv2.waitKey(100)
     else:
         plt.imshow(image)
         plt.show()
@@ -151,6 +151,6 @@ def twoDimPlot(pathTrain, eigenFaces, meanFace, dimA=0, dimB=1):
 
 if __name__ == '__main__':
     eigenFaces, meanFace = loadModel('./models/eigenfaces.pickle')
-    randomTrainingFace = loadRandomTrainingFace('./data/extracted_faces')
+    randomTrainingFace = loadRandomTrainingFace('./data/training_faces')
     buildUpFace(copy.deepcopy(eigenFaces), meanFace, randomTrainingFace)
-    twoDimPlot('./data/extracted_faces', copy.deepcopy(eigenFaces), meanFace, 3,1)
+    twoDimPlot('./data/training_faces', copy.deepcopy(eigenFaces), meanFace, 1,5)
