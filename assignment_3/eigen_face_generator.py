@@ -29,8 +29,7 @@ def getImages(pathList):
     images = [(cv2.cvtColor(item, cv2.COLOR_BGR2GRAY)) for item in images]
     return images
 
-def getLabelledFaces():
-    return True
+
 
 def __unroll(matrix):
     (x,y) = matrix.shape
@@ -78,11 +77,12 @@ def computeEigenFaces(faceList):
         eigenFaces.append(face.real)
 
     model = {}
+    model['mean_face'] = meanFace
     model['eigen_faces']=eigenFaces
     model['image_size']=H 
     model['train_size']=numFaces
 
-    return eigenFaces
+    return model
 
 def saveModel(model):
     with open('model.pickle', 'wb') as handle:
