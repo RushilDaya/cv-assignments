@@ -1,20 +1,12 @@
-# run this script to take all faces in the raw folder
-# and generate cropped face images of size N
-
-import numpy as np 
-from numpy import linalg as LA
-import cv2
 import os
-import shutil
 import uuid
-import matplotlib.pyplot as plt 
-import pickle
 from mixins import extractFace
+from mixins import getAllImagePaths, getImages, computeEigenFaces, saveModel
 
 PATH_TO_RAW = './data/raw_faces/'
 PATH_TO_PROCESSED = './data/extracted_faces/'
 PERSONS = ['person_1','person_2']
-DIMENSION = 50 # the default
+DIMENSION = 80 # the default
 
 
 if __name__ == '__main__':
@@ -28,3 +20,8 @@ if __name__ == '__main__':
             writePath = PATH_TO_PROCESSED+person+'/'+str(uuid.uuid4())+'.png'
             extractFace(DIMENSION,imagePath, writePath)
         
+    allImagePaths = getAllImagePaths(PATH_TO_PROCESSED, recursive=True)
+    allFaces = getImages(allImagePaths)
+    print('computing eigenfaces ...')
+    model = computeEigenFaces(allFaces)
+    saveModel(model)

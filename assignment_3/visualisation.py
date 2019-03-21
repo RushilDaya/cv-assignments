@@ -150,7 +150,7 @@ def twoDimPlot(pathTrain, eigenFaces, meanFace, dimA=0, dimB=1):
 
 
 if __name__ == '__main__':
-    eigenFaces, meanFace = loadModel('model.pickle')
+    eigenFaces, meanFace = loadModel('./models/eigenfaces.pickle')
     randomTrainingFace = loadRandomTrainingFace('./data/extracted_faces')
     buildUpFace(copy.deepcopy(eigenFaces), meanFace, randomTrainingFace)
     twoDimPlot('./data/extracted_faces', copy.deepcopy(eigenFaces), meanFace, 3,1)
