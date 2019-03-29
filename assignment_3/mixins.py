@@ -81,7 +81,7 @@ def unroll(matrix):
 def roll(vector, N):
     return np.reshape(vector,(N,N))
 
-def numMeaningfulVectors(eValues, absolute_max=40):
+def numMeaningfulVectors(eValues, absolute_max=20):
     # the smaller the eval the less important the corr. evec
     # here we try to limit the number of meaningful eVecs
     

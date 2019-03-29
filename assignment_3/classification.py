@@ -6,7 +6,7 @@ PATH_TO_TRAINING_PERSON_2 = './data/training_faces/person_2/'
 PATH_TO_KNN_MODEL = './models/knn_model.pickle'
 PATH_TO_TEST_FACES_PERSON_1 = './data/test_faces/person_1/'
 PATH_TO_TEST_FACES_PERSON_2 = './data/test_faces/person_2/'
-KNN_K = 1
+KNN_K = 5
 
 import pickle
 import os
