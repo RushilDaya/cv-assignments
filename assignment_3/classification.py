@@ -55,8 +55,7 @@ def _generic_evaluate(classifierFunction):
 
     return accuracy
 
-def knnTrain():
-    # formats and stores the testing eigenfaces as simple vectors
+def _generic_training_preprocessing():
     pickle_in = open(PATH_TO_FACES,'rb')
     data= pickle.load(pickle_in)
     meanFace = data["mean_face"]
@@ -87,7 +86,12 @@ def knnTrain():
     eigenFaceMatrix = np.transpose(eigenFaceMatrix) 
     
     componentFaces1 = [np.matmul(eigenFaceMatrix, item) for item in reshapedFaces1]
-    componentFaces2 = [np.matmul(eigenFaceMatrix, item) for item in reshapedFaces2]
+    componentFaces2 = [np.matmul(eigenFaceMatrix, item) for item in reshapedFaces2]   
+
+    return meanFace, eigenFaces,componentFaces1,componentFaces2,eigenFaceMatrix 
+
+def knnTrain():
+    meanFace, eigenFaces,componentFaces1,componentFaces2,eigenFaceMatrix = _generic_training_preprocessing()
 
     mergedItems = []
     for item in componentFaces1:
@@ -171,37 +175,10 @@ def knnEvaluate():
 def svmTrain():
     # first we need to run pca on the test data
     # obtain an array of pca vectors 
-    pickle_in = open(PATH_TO_FACES,'rb')
-    data= pickle.load(pickle_in)
-    meanFace = data["mean_face"]
-    eigenFaces = data["eigen_faces"]
+    meanFace, eigenFaces,componentFaces1,componentFaces2,eigenFaceMatrix = _generic_training_preprocessing()
 
-    facePaths1 = [(PATH_TO_TRAINING_PERSON_1+item) for item in os.listdir(PATH_TO_TRAINING_PERSON_1)]
-    facePaths2 = [(PATH_TO_TRAINING_PERSON_2+item) for item in os.listdir(PATH_TO_TRAINING_PERSON_2)]
-
-    faces1 = [_importFace(item) for item in facePaths1 ]
-    faces2 = [_importFace(item) for item in facePaths2 ]
-
-    faces1Norm, faces2Norm = _subtractMean(faces1, faces2, meanFace)
-    
-    #convert the faces into vectors
-    x,y = faces1Norm[0].shape
-    length = x*y
-    reshapedFaces1 = [np.reshape(item, (length,1)) for item in faces1Norm]
-    reshapedFaces2 = [np.reshape(item, (length,1)) for item in faces2Norm]
-
-    numEigenFaces = len(eigenFaces)
-    x,y = eigenFaces[0].shape
-    length = x*y
-    eigenFaceMatrix = np.zeros((length,numEigenFaces))
-    for i in range(numEigenFaces):
-        faceColumn = np.reshape(eigenFaces[i], (length,1))
-        eigenFaceMatrix[:,i] = np.squeeze(faceColumn)
-
-    eigenFaceMatrix = np.transpose(eigenFaceMatrix) 
-    
-    componentFaces1 = [np.transpose(np.matmul(eigenFaceMatrix, item)).tolist()[0] for item in reshapedFaces1]
-    componentFaces2 = [np.transpose(np.matmul(eigenFaceMatrix, item)).tolist()[0] for item in reshapedFaces2]
+    componentFaces1 = [np.transpose(item).tolist()[0] for item in componentFaces1]
+    componentFaces2 = [np.transpose(item).tolist()[0] for item in componentFaces2]
 
     mergedItems = []
     labels = []
@@ -255,39 +232,10 @@ def svmEvaluate():
     return accuracy
 
 def boostedTreeTrain():
- # first we need to run pca on the test data
-    # obtain an array of pca vectors 
-    pickle_in = open(PATH_TO_FACES,'rb')
-    data= pickle.load(pickle_in)
-    meanFace = data["mean_face"]
-    eigenFaces = data["eigen_faces"]
-
-    facePaths1 = [(PATH_TO_TRAINING_PERSON_1+item) for item in os.listdir(PATH_TO_TRAINING_PERSON_1)]
-    facePaths2 = [(PATH_TO_TRAINING_PERSON_2+item) for item in os.listdir(PATH_TO_TRAINING_PERSON_2)]
-
-    faces1 = [_importFace(item) for item in facePaths1 ]
-    faces2 = [_importFace(item) for item in facePaths2 ]
-
-    faces1Norm, faces2Norm = _subtractMean(faces1, faces2, meanFace)
+    meanFace, eigenFaces,componentFaces1,componentFaces2,eigenFaceMatrix = _generic_training_preprocessing()
     
-    #convert the faces into vectors
-    x,y = faces1Norm[0].shape
-    length = x*y
-    reshapedFaces1 = [np.reshape(item, (length,1)) for item in faces1Norm]
-    reshapedFaces2 = [np.reshape(item, (length,1)) for item in faces2Norm]
-
-    numEigenFaces = len(eigenFaces)
-    x,y = eigenFaces[0].shape
-    length = x*y
-    eigenFaceMatrix = np.zeros((length,numEigenFaces))
-    for i in range(numEigenFaces):
-        faceColumn = np.reshape(eigenFaces[i], (length,1))
-        eigenFaceMatrix[:,i] = np.squeeze(faceColumn)
-
-    eigenFaceMatrix = np.transpose(eigenFaceMatrix) 
-    
-    componentFaces1 = [np.transpose(np.matmul(eigenFaceMatrix, item)).tolist()[0] for item in reshapedFaces1]
-    componentFaces2 = [np.transpose(np.matmul(eigenFaceMatrix, item)).tolist()[0] for item in reshapedFaces2]
+    componentFaces1 = [np.transpose(item).tolist()[0] for item in componentFaces1]
+    componentFaces2 = [np.transpose(item).tolist()[0] for item in componentFaces2]
 
     mergedItems = []
     labels = []
