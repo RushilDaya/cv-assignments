@@ -35,6 +35,26 @@ def _subtractMean(faces1, faces2, meanFace):
 
     return face1New, face2New
 
+def _generic_evaluate(classifierFunction):
+
+    person1 = [PATH_TO_TEST_FACES_PERSON_1+item for item in os.listdir(PATH_TO_TEST_FACES_PERSON_1)]
+    person2 = [PATH_TO_TEST_FACES_PERSON_2+item for item in os.listdir(PATH_TO_TEST_FACES_PERSON_2)]
+
+    predictions1 = [classifierFunction(item) for item in person1] 
+    predictions2 = [classifierFunction(item) for item in person2]
+
+    correct = 0
+    for item in predictions1:
+        if item == 1:
+            correct+=1
+    for item in predictions2:
+        if item == 2:
+            correct+=1
+    
+    accuracy = float(correct)/(len(predictions1)+len(predictions2))
+
+    return accuracy
+
 def knnTrain():
     # formats and stores the testing eigenfaces as simple vectors
     pickle_in = open(PATH_TO_FACES,'rb')
@@ -145,22 +165,7 @@ def knnClassify(imagePath):
 
 def knnEvaluate():
     # get the accuracy of the knn classifier
-    person1 = [PATH_TO_TEST_FACES_PERSON_1+item for item in os.listdir(PATH_TO_TEST_FACES_PERSON_1)]
-    person2 = [PATH_TO_TEST_FACES_PERSON_2+item for item in os.listdir(PATH_TO_TEST_FACES_PERSON_2)]
-
-    predictions1 = [knnClassify(item) for item in person1] 
-    predictions2 = [knnClassify(item) for item in person2]
-
-    correct = 0
-    for item in predictions1:
-        if item == 1:
-            correct+=1
-    for item in predictions2:
-        if item == 2:
-            correct+=1
-    
-    accuracy = float(correct)/(len(predictions1)+len(predictions2))
-
+    accuracy = _generic_evaluate(knnClassify)
     return accuracy
 
 def svmTrain():
@@ -246,22 +251,7 @@ def svmPredict(imgPath):
     return  prediction[0]
 
 def svmEvaluate():
-    person1 = [PATH_TO_TEST_FACES_PERSON_1+item for item in os.listdir(PATH_TO_TEST_FACES_PERSON_1)]
-    person2 = [PATH_TO_TEST_FACES_PERSON_2+item for item in os.listdir(PATH_TO_TEST_FACES_PERSON_2)]
-
-    predictions1 = [svmPredict(item) for item in person1] 
-    predictions2 = [svmPredict(item) for item in person2]
-
-    correct = 0
-    for item in predictions1:
-        if item == 1:
-            correct+=1
-    for item in predictions2:
-        if item == 2:
-            correct+=1
-    
-    accuracy = float(correct)/(len(predictions1)+len(predictions2))
-
+    accuracy = _generic_evaluate(svmPredict)
     return accuracy
 
 def boostedTreeTrain():
@@ -346,23 +336,8 @@ def boostedTreePredict(imgPath):
     # prediction
     return  prediction[0]
 
-def boostedTreeEvaluate():
-    person1 = [PATH_TO_TEST_FACES_PERSON_1+item for item in os.listdir(PATH_TO_TEST_FACES_PERSON_1)]
-    person2 = [PATH_TO_TEST_FACES_PERSON_2+item for item in os.listdir(PATH_TO_TEST_FACES_PERSON_2)]
-
-    predictions1 = [boostedTreePredict(item) for item in person1] 
-    predictions2 = [boostedTreePredict(item) for item in person2]
-
-    correct = 0
-    for item in predictions1:
-        if item == 1:
-            correct+=1
-    for item in predictions2:
-        if item == 2:
-            correct+=1
-    
-    accuracy = float(correct)/(len(predictions1)+len(predictions2))
-
+def boostedTreeEvaluate():  
+    accuracy = _generic_evaluate(boostedTreePredict)
     return accuracy
 
 if __name__ == '__main__':
