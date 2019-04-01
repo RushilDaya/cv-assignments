@@ -384,6 +384,8 @@ def visualizeClustering(dimA=0, dimB=1):
         ax.scatter(x, y, alpha=0.8, c=color, edgecolors='none', s=30, label=group)
     
     plt.title('Matplot scatter plot')
+    plt.xlabel('PCA Component '+str(dimA))
+    plt.ylabel('PCA Component'+str(dimB))
     plt.legend(loc=2)
 
     plt.savefig('./temp/clusteringTraining'+str(dimA)+str(dimB)+'.png')
@@ -452,3 +454,61 @@ def drawFaceIncrementally():
     imageList = buildUpFace(eigenFaces, meanFace,trainingFace)
 
     return imageList
+
+
+def getTrainingTestHeatMap(train_path, test_path):
+    plt.clf()
+    data_file = open('./models/eigenfaces.pickle','rb')
+    data = pickle.load(data_file)
+    eigenFaces = data['eigen_faces']
+    meanFace = data['mean_face']
+
+
+    train_images = [ train_path+item for item in os.listdir(train_path)]
+    test_images =  [ test_path+item for item in os.listdir(test_path)]
+
+
+
+    TrainV = _getImageVector(train_images, meanFace)
+    TestV = _getImageVector(test_images, meanFace)
+
+    Train_Coeffs = _getCoeffs(TrainV, eigenFaces)
+    Test_Coeffs = _getCoeffs(TestV, eigenFaces)
+
+    numFacesTrain,numCoeffs = Train_Coeffs.shape
+    numFacesTest, numCoeffs = Test_Coeffs.shape 
+
+    plt.clf()
+    plt.subplot(1,2,1)
+    plt.imshow(Train_Coeffs)
+    plt.xlabel('PCA component')
+    plt.ylabel('Training Images')
+    plt.title('PCA weights on Training set')
+
+    plt.subplot(1,2,2)
+    plt.imshow(Test_Coeffs)
+    plt.xlabel('PCA components')
+    plt.ylabel('Test Images')
+    plt.title('PCA weights on Test set')
+
+    plt.savefig('./temp/tt.png')
+
+    figure = cv2.imread('./temp/tt.png')
+    return figure
+
+def compositeImage(paths):
+    plt.clf()
+    # just working with columns of three
+    images = [cv2.imread(item) for item in paths]
+    images = [cv2.cvtColor(item, cv2.COLOR_BGR2GRAY).astype(np.uint8) for item in images]
+
+
+    h,w = images[0].shape 
+    displayGrid = np.zeros((3*h, 3*w), dtype=np.uint8)
+
+    for i in range(len(images)):
+        row = int(i/3) 
+        col = int(i % 3)
+        displayGrid[row*h:row*h+h,col*w:col*w+w]=images[i]
+    
+    return displayGrid
