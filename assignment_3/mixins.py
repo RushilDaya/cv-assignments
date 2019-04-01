@@ -83,7 +83,7 @@ def unroll(matrix):
 def roll(vector, N):
     return np.reshape(vector,(N,N))
 
-def numMeaningfulVectors(eValues, absolute_max=20):
+def numMeaningfulVectors(eValues, absolute_max=22):
     # the smaller the eval the less important the corr. evec
     # here we try to limit the number of meaningful eVecs
     
@@ -234,6 +234,7 @@ def getEigenFaces(num_items=1, formated = True):
     return returnedArray
 
 def plotEigenValues():
+   plt.clf()
    data_file = open('./models/eigenfaces.pickle','rb')
    data = pickle.load(data_file)
    evals = data['eigen_values']
@@ -250,3 +251,71 @@ def plotEigenValues():
    figure = cv2.imread('./temp/eigenvalues.png')
    return figure
     
+def computeError(TrueImage, PCAs, eigenFaces, meanFace,j):
+    
+    newFace = copy.deepcopy(meanFace)
+    for i in range(len(PCAs)):
+        newFace += PCAs[i]*eigenFaces[i]
+ 
+
+    diff = TrueImage - newFace 
+    diff = np.abs(diff)
+    total = diff.sum()
+
+    return total
+
+
+def plotReconstructionError():
+    plt.clf()
+    data_file = open('./models/eigenfaces.pickle','rb')
+    data = pickle.load(data_file)
+
+    eigenFaces = data['eigen_faces']
+    meanFace = data['mean_face']
+
+
+    trainingImages = getTrainingImages()
+    meanShifted = [(item - meanFace) for item in trainingImages]
+
+    x,y = meanShifted[0].shape
+    length = x*y
+    vectors = [np.reshape(item,(length,1)) for item in meanShifted]
+
+    numFaces = len(eigenFaces)
+    x,y = eigenFaces[0].shape
+    length = x*y
+
+    eigenFaceMatrix = np.zeros((length,numFaces))
+    for i in range(numFaces):
+        faceColumn = np.reshape(eigenFaces[i], (length,1))
+        eigenFaceMatrix[:,i] = np.squeeze(faceColumn)
+
+    eigenFaceMatrix = np.transpose(eigenFaceMatrix) 
+    trainingFacePCAs = [np.matmul(eigenFaceMatrix, item) for item in vectors]
+
+
+    reconError = []
+    numCompsVector = []
+
+    for numComps in range(numFaces):
+        total_reconstruction_error = 0
+        for j in range(len(trainingFacePCAs)):
+            facePCA = trainingFacePCAs[j]
+            trueImage = trainingImages[j]
+            usefulComponents = facePCA[0:numComps]
+            usefulEigenFaces = eigenFaces[0:numComps]
+            total_reconstruction_error +=computeError(trueImage, usefulComponents, usefulEigenFaces, meanFace,j)
+
+        numCompsVector +=[numComps]
+        reconError +=[total_reconstruction_error]
+
+    plt.clf()
+    plt.plot(numCompsVector, reconError, color='r')
+    plt.xlabel('Number of Components')
+    plt.ylabel('Reconstruction Error on Training Set')
+    plt.title('Reconstruction Error')
+    plt.savefig('./temp/reconError.png')
+
+    figure = cv2.imread('./temp/reconError.png')
+    return figure
+        

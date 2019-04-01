@@ -148,10 +148,18 @@ image_shaped = imutils.resize(eigenValueGraph, height=SCREEN_HEIGHT)
 imgH,imgW,_ = image_shaped.shape
 displayGrid = np.zeros((SCREEN_HEIGHT, SCREEN_WIDTH,3),dtype='int')
 displayGrid[0:imgH,0:imgW,:]=image_shaped
-_displayFrame(displayGrid, time=5,fileStream=outputVideo, is_gray=False)
+_displayFrame(displayGrid, time=0.1,fileStream=outputVideo, is_gray=False)
 
 # G - show the plot of generalized reconstruction error as a means 
 #     to determine the number of PCA components we need
+from mixins import plotReconstructionError
+
+ReconstructionErrorGraph = plotReconstructionError()
+image_shaped = imutils.resize(ReconstructionErrorGraph, height=SCREEN_HEIGHT)
+imgH,imgW,_ = image_shaped.shape
+displayGrid = np.zeros((SCREEN_HEIGHT, SCREEN_WIDTH,3),dtype='int')
+displayGrid[0:imgH,0:imgW,:]=image_shaped
+_displayFrame(displayGrid, time=5,fileStream=outputVideo, is_gray=False)
 
 # H - try somehow to show a clustering of faces along eigen axes
 
