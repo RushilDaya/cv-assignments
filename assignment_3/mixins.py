@@ -318,4 +318,75 @@ def plotReconstructionError():
 
     figure = cv2.imread('./temp/reconError.png')
     return figure
-        
+
+
+def _getImageVector(paths, meanFace):
+    images = [(cv2.imread(path)) for path in paths]
+    images = [(cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)) for image in images]
+    images = [image-meanFace for image in images]
+    (w,h) = images[0].shape
+    length = w*h
+
+    tempMatrix = np.zeros((length, len(images)))
+    for idx,image in enumerate(images):
+        imageFlat = np.reshape(image,(length,1))
+        tempMatrix[:, idx] = np.squeeze(imageFlat)
+    return tempMatrix
+
+def _getCoeffs(targetMatrix, eigenFaces):
+    (w,h) = eigenFaces[0].shape
+    length = w*h
+
+    EigenVectors = np.zeros((length, len(eigenFaces)))
+    for idx, image in enumerate(eigenFaces):
+        imageFlat = np.reshape(image, (length,1))
+        EigenVectors[:, idx] = np.squeeze(imageFlat)
+    EigenVectors = np.transpose(EigenVectors)
+
+    coeffs = np.transpose(np.matmul(EigenVectors, targetMatrix))
+    return coeffs
+
+def _extractCol(matrix, col_id):
+    temp = np.transpose(matrix[col_id,:])
+    temp = temp.tolist()
+    return temp
+
+def visualizeClustering(dimA=0, dimB=1):
+    pathTrain = './data/training_faces/'
+
+    plt.clf()
+    data_file = open('./models/eigenfaces.pickle','rb')
+    data = pickle.load(data_file)
+
+    eigenFaces = data['eigen_faces']
+    meanFace = data['mean_face']
+
+    person_1_paths = [ pathTrain+'/person_1/'+item for item in os.listdir(pathTrain+'/person_1/')]
+    person_2_paths = [ pathTrain+'/person_2/'+item for item in os.listdir(pathTrain+'/person_2/')]
+
+    P1 = _getImageVector(person_1_paths, meanFace)
+    P2 = _getImageVector(person_2_paths, meanFace)
+
+    P1_COEFFS = _getCoeffs(P1, eigenFaces)
+    P2_COEFFS = _getCoeffs(P2, eigenFaces)
+
+    P1_DATA = (_extractCol(P1_COEFFS, dimA), _extractCol(P1_COEFFS, dimB))
+    P2_DATA = (_extractCol(P2_COEFFS, dimA), _extractCol(P2_COEFFS, dimB))
+    data = (P1_DATA, P2_DATA)
+    colors = ('green', 'red')
+    groups =('Conan O Brian', 'Morgan Freeman')
+
+    fig = plt.figure()
+    ax = fig.add_subplot(1, 1, 1)
+    
+    for data, color, group in zip(data, colors, groups):
+        x, y = data
+        ax.scatter(x, y, alpha=0.8, c=color, edgecolors='none', s=30, label=group)
+    
+    plt.title('Matplot scatter plot')
+    plt.legend(loc=2)
+
+    plt.savefig('./temp/clusteringTraining'+str(dimA)+str(dimB)+'.png')
+    figure = cv2.imread('./temp/clusteringTraining'+str(dimA)+str(dimB)+'.png')
+
+    return figure
