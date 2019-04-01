@@ -159,7 +159,7 @@ image_shaped = imutils.resize(ReconstructionErrorGraph, height=SCREEN_HEIGHT)
 imgH,imgW,_ = image_shaped.shape
 displayGrid = np.zeros((SCREEN_HEIGHT, SCREEN_WIDTH,3),dtype='int')
 displayGrid[0:imgH,0:imgW,:]=image_shaped
-_displayFrame(displayGrid, time=1,fileStream=outputVideo, is_gray=False)
+_displayFrame(displayGrid, time=0.1,fileStream=outputVideo, is_gray=False)
 
 # H - try somehow to show a clustering of faces along eigen axes
 from mixins import visualizeClustering
@@ -169,32 +169,48 @@ image_shaped = imutils.resize(clusterGraph, height=SCREEN_HEIGHT)
 imgH,imgW,_ = image_shaped.shape
 displayGrid = np.zeros((SCREEN_HEIGHT, SCREEN_WIDTH,3),dtype='int')
 displayGrid[0:imgH,0:imgW,:]=image_shaped
-_displayFrame(displayGrid, time=1,fileStream=outputVideo, is_gray=False)
+_displayFrame(displayGrid, time=0.1,fileStream=outputVideo, is_gray=False)
 
 clusterGraph = visualizeClustering(2,3)
 image_shaped = imutils.resize(clusterGraph, height=SCREEN_HEIGHT)
 imgH,imgW,_ = image_shaped.shape
 displayGrid = np.zeros((SCREEN_HEIGHT, SCREEN_WIDTH,3),dtype='int')
 displayGrid[0:imgH,0:imgW,:]=image_shaped
-_displayFrame(displayGrid, time=1,fileStream=outputVideo, is_gray=False)
+_displayFrame(displayGrid, time=0.1,fileStream=outputVideo, is_gray=False)
 
 clusterGraph = visualizeClustering(4,5)
 image_shaped = imutils.resize(clusterGraph, height=SCREEN_HEIGHT)
 imgH,imgW,_ = image_shaped.shape
 displayGrid = np.zeros((SCREEN_HEIGHT, SCREEN_WIDTH,3),dtype='int')
 displayGrid[0:imgH,0:imgW,:]=image_shaped
-_displayFrame(displayGrid, time=1,fileStream=outputVideo, is_gray=False)
+_displayFrame(displayGrid, time=0.1,fileStream=outputVideo, is_gray=False)
 
 clusterGraph = visualizeClustering(6,9)
 image_shaped = imutils.resize(clusterGraph, height=SCREEN_HEIGHT)
 imgH,imgW,_ = image_shaped.shape
 displayGrid = np.zeros((SCREEN_HEIGHT, SCREEN_WIDTH,3),dtype='int')
 displayGrid[0:imgH,0:imgW,:]=image_shaped
-_displayFrame(displayGrid, time=1,fileStream=outputVideo, is_gray=False)
+_displayFrame(displayGrid, time=0.1,fileStream=outputVideo, is_gray=False)
 
 # I - take a few faces and draw them with more and fewer eigenfaces
+from mixins import drawFaceIncrementally
 
+images = drawFaceIncrementally()
+for image in images:
+    image_shaped = imutils.resize(image, height=int(SCREEN_HEIGHT*0.5))
+    imgH,imgW = image_shaped.shape
+    displayGrid = np.zeros((SCREEN_HEIGHT, SCREEN_WIDTH),dtype='int')
+    displayGrid[0:imgH,0:imgW]=image_shaped
+    _displayFrame(displayGrid, time=0.5,fileStream=outputVideo, is_gray=True)
 
+images = drawFaceIncrementally()
+for image in images:
+    image_shaped = imutils.resize(image, height=int(SCREEN_HEIGHT*0.5))
+    imgH,imgW = image_shaped.shape
+    displayGrid = np.zeros((SCREEN_HEIGHT, SCREEN_WIDTH),dtype='int')
+    displayGrid[0:imgH,0:imgW]=image_shaped
+    _displayFrame(displayGrid, time=0.5,fileStream=outputVideo, is_gray=True)
+    
 # J - explain briefly the 3 classification methods
 
 # J1 - we must show the new faces in terms of their PCA somehow ( show its the same)

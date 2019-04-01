@@ -390,3 +390,65 @@ def visualizeClustering(dimA=0, dimB=1):
     figure = cv2.imread('./temp/clusteringTraining'+str(dimA)+str(dimB)+'.png')
 
     return figure
+
+def loadRandomTrainingFace(path):
+    persons = os.listdir(path)
+    trainImagePaths = []
+    for person in persons:
+        imagePaths = os.listdir(path+'/'+person)
+        imagePaths = [path+'/'+person+'/'+item for item in imagePaths]
+        trainImagePaths +=imagePaths
+    index = random.randint(0, len(trainImagePaths))
+    selection = trainImagePaths[index]
+    image = cv2.imread(selection)
+    image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    return image
+
+def _rescale(image):
+    return  (255/(np.max(image)-np.min(image)))*(image-np.min(image)).astype('uint8')
+
+def buildUpFace(eigenFaces, meanFace, target, max_layers=100):
+    # incrementally composes a face from its eigen contributions
+    (h,w) = target.shape
+    displayGrid = np.zeros((h,w*2))
+    plotableTarget = _rescale(target)
+    displayGrid[:,0:w]=plotableTarget
+
+    # convert eigenFaces to matrix
+    matrix = np.zeros((h*w,len(eigenFaces)))
+    for i,face in enumerate(eigenFaces):
+        unrolled = np.reshape(face,(h*w,1))
+        matrix[:,i] = np.squeeze(unrolled)
+    matrix = np.transpose(matrix)
+    
+    targetMeaned =  target - meanFace
+    target_vect = np.reshape(targetMeaned, (h*w,1))
+    coeffs = np.transpose(np.matmul(matrix, target_vect))[0]
+
+    coeffsSortIndices = np.argsort(-1*abs(coeffs))
+
+    baseFace = meanFace[:]
+    plotable = _rescale(baseFace)
+    displayGrid[:,w:2*w]=plotable 
+    max_index = min(max_layers, len(eigenFaces))
+    newImage = copy.deepcopy(baseFace)
+    images = [newImage]
+    for layer in range(max_index):
+        baseFace += coeffs[coeffsSortIndices[layer]]*eigenFaces[coeffsSortIndices[layer]]
+        plotable = _rescale(baseFace)
+        displayGrid[:,w:2*w]=plotable
+        newImage = copy.deepcopy(displayGrid)
+        images +=[newImage]
+
+    return images
+
+def drawFaceIncrementally():
+    trainingFace = loadRandomTrainingFace('./data/training_faces/')
+
+    data_file = open('./models/eigenfaces.pickle','rb')
+    data = pickle.load(data_file)
+    eigenFaces = data['eigen_faces']
+    meanFace = data['mean_face']
+    imageList = buildUpFace(eigenFaces, meanFace,trainingFace)
+
+    return imageList
