@@ -6,6 +6,7 @@ import shutil
 import uuid
 import matplotlib.pyplot as plt 
 import pickle
+import random
 
 def readGrayscale(path):
     image = cv2.imread(path)
@@ -163,3 +164,25 @@ def splitSets(pathData,pathTraining, pathTest, numTrain, numTest):
 
     for item in personTwoTest:
         shutil.move(pathData+'person_2/'+item, pathTest+'person_2/'+item)
+
+
+def getRawImages(num_images=1, sample_type='RANDOM',imFormat='GRAYSCALE'):
+    possible_directories = ['./data/raw_faces/person_1/','./data/raw_faces/person_2/']
+    returnedArray = []
+    for item in range(num_images):
+        if sample_type=='RANDOM':
+            path = random.choice(possible_directories)
+            images = os.listdir(path)
+            randomImage = random.choice(images)
+            imagePath = path+randomImage
+        else:
+            raise TypeError('method not implemented')
+        
+        image = cv2.imread(imagePath)
+        
+        if imFormat=='GRAYSCALE':
+            image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        
+        returnedArray +=[image]
+    
+    return returnedArray
