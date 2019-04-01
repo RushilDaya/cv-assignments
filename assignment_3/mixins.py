@@ -123,6 +123,7 @@ def computeEigenFaces(faceList):
     model['eigen_faces']=eigenFaces
     model['image_size']=H 
     model['train_size']=numFaces
+    model['eigen_values']=eVals
 
     return model
 
@@ -232,3 +233,20 @@ def getEigenFaces(num_items=1, formated = True):
         returnedArray +=[blank_image]
     return returnedArray
 
+def plotEigenValues():
+   data_file = open('./models/eigenfaces.pickle','rb')
+   data = pickle.load(data_file)
+   evals = data['eigen_values']
+   evals = [abs(item) for item in evals]
+
+   linearScale = [item for item in range(len(evals))]
+
+   plt.plot(linearScale, evals, color='r')
+   plt.xlabel('PCA eigenvalue number')
+   plt.ylabel('PCA eigenvalue (absolute size)')
+   plt.title('Plot of eigenvalue size from PCA')
+   plt.savefig('./temp/eigenvalues.png')
+
+   figure = cv2.imread('./temp/eigenvalues.png')
+   return figure
+    

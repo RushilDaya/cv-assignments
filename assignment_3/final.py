@@ -137,10 +137,18 @@ for image in eigenFaces:
     imgH,imgW,_ = image_shaped.shape
     displayGrid = np.zeros((SCREEN_HEIGHT, SCREEN_WIDTH,3),dtype='int')
     displayGrid[0:imgH,0:imgW,:]=image_shaped
-    _displayFrame(displayGrid, time=1,fileStream=outputVideo, is_gray=False)
+    _displayFrame(displayGrid, time=0.01,fileStream=outputVideo, is_gray=False)
 
 
 # F - show the size of the eigenvalues (indicates set variance)
+from mixins import plotEigenValues
+
+eigenValueGraph = plotEigenValues()
+image_shaped = imutils.resize(eigenValueGraph, height=SCREEN_HEIGHT)
+imgH,imgW,_ = image_shaped.shape
+displayGrid = np.zeros((SCREEN_HEIGHT, SCREEN_WIDTH,3),dtype='int')
+displayGrid[0:imgH,0:imgW,:]=image_shaped
+_displayFrame(displayGrid, time=5,fileStream=outputVideo, is_gray=False)
 
 # G - show the plot of generalized reconstruction error as a means 
 #     to determine the number of PCA components we need
