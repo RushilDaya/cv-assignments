@@ -21,10 +21,11 @@ VIDEO_NAME = 'output.avi'
 fourcc = cv2.VideoWriter_fourcc(*'MPEG')
 outputVideo = cv2.VideoWriter(VIDEO_NAME, fourcc, FRAME_RATE, (SCREEN_HEIGHT,SCREEN_WIDTH),1)
 
-def _displayFrame(frame,time=1,frame_rate=FRAME_RATE,fileStream=None):
+def _displayFrame(frame,time=1,frame_rate=FRAME_RATE,fileStream=None, is_gray=True):
     num_frames = int(time*frame_rate)
     frame_d = np.asarray(frame, dtype=np.uint8)
-    frame_d = cv2.cvtColor(frame_d, cv2.COLOR_GRAY2BGR)
+    if is_gray:
+        frame_d = cv2.cvtColor(frame_d, cv2.COLOR_GRAY2BGR)
     for i in range(num_frames):
         cv2.imshow('img',frame_d)
         cv2.waitKey(int(1000/frame_rate))
@@ -61,7 +62,7 @@ for rawImage in RawImages:
     imgH,imgW = rawImage.shape
     displayGrid = np.zeros((SCREEN_HEIGHT, SCREEN_WIDTH),dtype='int')
     displayGrid[0:imgH,0:imgW]=rawImage
-    _displayFrame(displayGrid, time=0.1,fileStream=outputVideo)
+    _displayFrame(displayGrid, time=0.01,fileStream=outputVideo)
 
 # B - explain we use haar cascades to find faces
 
@@ -73,7 +74,7 @@ for i, line in enumerate(text.split('\n')):
     y = y0 + i*dy
     cv2.putText(displayGrid, line, (50, y ), cv2.FONT_HERSHEY_SIMPLEX, 1, 150)
 
-_displayFrame(displayGrid, time=0.1,fileStream=None)
+_displayFrame(displayGrid, time=0.01,fileStream=None)
 
 displayGrid =  np.zeros((SCREEN_HEIGHT, SCREEN_WIDTH),dtype=np.uint8)
 
@@ -83,7 +84,7 @@ for i, line in enumerate(text.split('\n')):
     y = y0 + i*dy
     cv2.putText(displayGrid, line, (50, y ), cv2.FONT_HERSHEY_SIMPLEX, 1, 150)
 
-_displayFrame(displayGrid, time=0.5,fileStream=None)
+_displayFrame(displayGrid, time=0.05,fileStream=None)
 
 displayGrid =  np.zeros((SCREEN_HEIGHT, SCREEN_WIDTH),dtype=np.uint8)
 text = "resize extracted faces \n to 50x50 squares. \n randomly split into \n training and test sets "
@@ -92,13 +93,52 @@ for i, line in enumerate(text.split('\n')):
     y = y0 + i*dy
     cv2.putText(displayGrid, line, (50, y ), cv2.FONT_HERSHEY_SIMPLEX, 1, 150)
 
-_displayFrame(displayGrid, time=0.5,fileStream=None)
+_displayFrame(displayGrid, time=0.05,fileStream=None)
 
 # C - after splitting randomly mix up into training and test set
+from mixins import getTrainingImages
+
+displayGrid =  np.zeros((SCREEN_HEIGHT, SCREEN_WIDTH),dtype=np.uint8)
+text = ""
+y0, dy = 50,30
+for i, line in enumerate(text.split('\n')):
+    y = y0 + i*dy
+    cv2.putText(displayGrid, line, (50, y ), cv2.FONT_HERSHEY_SIMPLEX, 1, 150)
+
+_displayFrame(displayGrid, time=0.05,fileStream=None)
+
+trainImages = getTrainingImages()
+for image in trainImages:
+    image_shaped = imutils.resize(image, height=SCREEN_HEIGHT)
+    imgH,imgW = image_shaped.shape
+    displayGrid = np.zeros((SCREEN_HEIGHT, SCREEN_WIDTH),dtype='int')
+    displayGrid[0:imgH,0:imgW]=image_shaped
+    _displayFrame(displayGrid, time=0.005,fileStream=outputVideo)
+
 
 # D - Show the mean face
+from mixins import getMeanFace
+from mixins import getEigenFaces
+
+meanFace = getMeanFace()
+image_shaped = imutils.resize(meanFace, height=SCREEN_HEIGHT)
+imgH,imgW = image_shaped.shape
+displayGrid = np.zeros((SCREEN_HEIGHT, SCREEN_WIDTH),dtype='int')
+displayGrid[0:imgH,0:imgW]=image_shaped
+_displayFrame(displayGrid, time=0.5,fileStream=outputVideo)
+
 
 # E - show some of the eigen-faces after PCA
+
+eigenFaces = getEigenFaces(25)
+
+for image in eigenFaces:
+    image_shaped = imutils.resize(image, height=SCREEN_HEIGHT)
+    imgH,imgW,_ = image_shaped.shape
+    displayGrid = np.zeros((SCREEN_HEIGHT, SCREEN_WIDTH,3),dtype='int')
+    displayGrid[0:imgH,0:imgW,:]=image_shaped
+    _displayFrame(displayGrid, time=1,fileStream=outputVideo, is_gray=False)
+
 
 # F - show the size of the eigenvalues (indicates set variance)
 

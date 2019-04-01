@@ -7,6 +7,7 @@ import uuid
 import matplotlib.pyplot as plt 
 import pickle
 import random
+import copy
 
 def readGrayscale(path):
     image = cv2.imread(path)
@@ -186,3 +187,48 @@ def getRawImages(num_images=1, sample_type='RANDOM',imFormat='GRAYSCALE'):
         returnedArray +=[image]
     
     return returnedArray
+
+def getTrainingImages():
+    directories = ['./data/training_faces/person_1/','./data/training_faces/person_2/']
+    returnedArray = []
+    for path in directories:
+        imageNames =os.listdir(path)
+        fullPaths = [path+item for item in imageNames]
+        images = [(cv2.imread(item)) for item in fullPaths]
+        returnedArray +=images 
+    returnedArray = [cv2.cvtColor(image, cv2.COLOR_BGR2GRAY) for image  in returnedArray]
+    return returnedArray
+
+def getMeanFace():
+    data_file = open('./models/eigenfaces.pickle','rb')
+    data = pickle.load(data_file)
+    return data['mean_face']
+
+def getEigenFaces(num_items=1, formated = True):
+    data_file = open('./models/eigenfaces.pickle','rb')
+    data = pickle.load(data_file)
+    eigenFaces = data['eigen_faces'][0:num_items]
+
+    trueMax = max([np.max(item) for item in eigenFaces])
+    trueMin = min([np.min(item) for item in eigenFaces])
+    print(trueMax)
+    print(trueMin)
+
+    returnedArray = []
+    for face in eigenFaces:
+        height,width = face.shape
+        positives = copy.deepcopy(face)
+        negatives = copy.deepcopy(face)
+
+        positives[positives<0] = 0
+        negatives[negatives>0] = 0
+
+        positives = (255/trueMax)*positives
+        negatives = (200/trueMin)*negatives
+
+        blank_image = np.zeros((height,width,3), np.uint8)
+        blank_image[:,:,1]=positives
+        blank_image[:,:,2]=negatives
+        returnedArray +=[blank_image]
+    return returnedArray
+
