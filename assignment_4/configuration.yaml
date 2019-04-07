@@ -1,0 +1,16 @@
+DATA_SPLIT_TRAINING: 0.75
+DATA_SPLIT_TEST: 0.2
+DATA_SPLIT_PLAY: 0.05
+
+DATA_NAME_TRAINING: './data/training_raw.pickle'
+DATA_NAME_TEST: './data/test_raw.pickle'
+DATA_NAME_PLAY: './data/play_raw.pickle'
+
+DATA_NUM_CLASSES: 10
+
+
+# range 0 -> 1 is the error tolerance uniform vectors, normalized amount of tolerable deviation from the means
+UNIFORM_DISTRIBUTION_TOLERANCE: 0.10
+
+
+  
