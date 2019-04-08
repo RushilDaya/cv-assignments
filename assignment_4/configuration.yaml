@@ -7,7 +7,7 @@ DATA_NAME_TEST: './data/test_raw.pickle'
 DATA_NAME_PLAY: './data/play_raw.pickle'
 
 DATA_NUM_CLASSES: 10
-DATA_NUM_VALIDATION: 200
+DATA_NUM_VALIDATION: 100
 NUM_SIMILAR_RETURNED: 5
 VALIDATION_RESULTS_PATH: './data/validation_results.pickle'
 
@@ -27,3 +27,10 @@ CONVNET_FEATURE_PATH_TEST: './data/featuresConvnetTest.pickle'
 CONVNET_MODEL_PATH: './data/convnetModel.pickle'
 CONVNET_TRAIN_EPOCHS: 5
 CONVNET_BATCH_SIZE: 128
+
+RUN_LBP_FEATURE_EXTRACT: False
+LBP_FEATURE_PATH_TRAINING: './data/featuresLbp.pickle'
+LBP_FEATURE_PATH_TEST: './data/featuresLbpTest.pickle'
+LBP_BUCKET_RESOLUTION: 30
+LBP_RADIUS: 3
+LBP_POINTS: 8

@@ -8,6 +8,20 @@ from shared.similarityMethods import normalizeSet, precisionRecallValidation
 from shared.configurationParser import retrieveConfiguration as rCon 
 
 
+#---- deals with the local binary patterns-----------------------------------------------------------------
+trainingFeaturesLbp, trainingLabels = loadLabelled(rCon('LBP_FEATURE_PATH_TRAINING'))
+validationFeaturesLbp, validationLabels = loadLabelled(rCon('LBP_FEATURE_PATH_TEST'))
+validationFeaturesLbp = validationFeaturesLbp[0:rCon('DATA_NUM_VALIDATION')]
+validationLabels = validationLabels[0:rCon('DATA_NUM_VALIDATION')]
+
+trainingFeaturesLbpNormed, normFactors = normalizeSet(trainingFeaturesLbp)
+validationFeaturesLbpNormed,_ = normalizeSet(validationFeaturesLbp, existing_norm_factors=normFactors)
+
+precisionLbp, recallLbp = precisionRecallValidation(trainingFeaturesLbpNormed, trainingLabels,
+                                                        validationFeaturesLbpNormed, validationLabels,
+                                                        qty_returned=rCon('NUM_SIMILAR_RETURNED'))
+#---------------------------------------------------------------------------------------------------------
+
 #---- deals with the conv net ----------------------------------------------------------------------
 trainingFeaturesConv, trainingLabels = loadLabelled(rCon('CONVNET_FEATURE_PATH_TRAINING'))
 validationFeaturesConv, validationLabels = loadLabelled(rCon('CONVNET_FEATURE_PATH_TEST'))
@@ -39,6 +53,8 @@ precisionHisto, recallHisto = precisionRecallValidation(trainingFeaturesHistoNor
 
 
 results = {
+    'Local Binary Patterns Precision': precisionLbp,
+    'Local Binary Patterns Recall': recallLbp,
     'Histogram Precision':precisionHisto,
     'Histogram Recall':recallHisto,
     'Conv Precision':precisionConv,

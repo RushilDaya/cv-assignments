@@ -3,6 +3,7 @@ from shared.configurationParser import retrieveConfiguration as rCon
 from shared.utilities import loadLabelled, saveLabelled,saveObj
 from shared.histogramFeatureMethods import histogramFeatures
 from shared.convnetFeatureMethods import learnConvNet, convNetFeatures
+from shared.localBinaryPatternsMethods import lbpFeatures
 
 trainingDataPath = rCon('DATA_NAME_TRAINING')
 testDataPath = rCon('DATA_NAME_TEST')
@@ -28,3 +29,12 @@ if rCon('RUN_CONVNET_FEATURE_EXTRACT'):
     loadedFeatures, loadedLabels = loadLabelled(testDataPath)
     extractedFeatures,extractedLabels = convNetFeatures(loadedFeatures,loadedLabels,model=model)
     saveLabelled(rCon('CONVNET_FEATURE_PATH_TEST'),extractedFeatures,extractedLabels) 
+
+if rCon('RUN_LBP_FEATURE_EXTRACT'):
+    loadedFeatures, loadedLabels = loadLabelled(trainingDataPath)
+    extractedFeatures,extractedLabels = lbpFeatures(loadedFeatures,loadedLabels)
+    saveLabelled(rCon('LBP_FEATURE_PATH_TRAINING'),extractedFeatures,extractedLabels)
+
+    loadedFeatures, loadedLabels = loadLabelled(testDataPath)
+    extractedFeatures,extractedLabels = lbpFeatures(loadedFeatures,loadedLabels)
+    saveLabelled(rCon('LBP_FEATURE_PATH_TEST'),extractedFeatures,extractedLabels)    
