@@ -2,13 +2,21 @@
 # this needs to be moved out at some point though 
 
 from shared.utilities import loadLabelled 
+from shared.similarityMethods import normalizeSet, getMostLeastSimilar
 import matplotlib.pyplot as plt
 import copy
 import numpy as np
+
 data, labels = loadLabelled('./data/featuresHistogram.pickle')
 
 
+normed, factors = normalizeSet(data)
+testDatum = normed[11000,:]
 
+ms,ls,msv,lsv = getMostLeastSimilar(normed,testDatum, qty_most=100, qty_least=100)
+
+
+'''
 means = np.sum(data, axis=0)/data.shape[0]
 
 for colIdx in range(data.shape[1]):
@@ -38,3 +46,4 @@ sortIndices = np.argsort(distances)
 sortedLabels = list(np.array(labels)[sortIndices])
 plt.plot(sortedLabels[0:200])
 plt.show()
+'''

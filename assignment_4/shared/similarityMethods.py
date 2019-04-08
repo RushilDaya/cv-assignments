@@ -15,12 +15,12 @@ def normalizeSet(vectorRows, existing_norm_factors=None):
         normFactors = existing_norm_factors
     else:
         normFactors = []
-        for colIdx in range(normalizeVectors.shape[1]):
-            _max = np.max(normalizeRows[:,colIdx])
+        for colIdx in range(normalizedRows.shape[1]):
+            _max = np.max(normalizedRows[:,colIdx])
             normFactor = 1.0/_max
             normFactors += [normFactor]
 
-    for colIdx in range(normalizeVectors.shape[1]):
+    for colIdx in range(normalizedRows.shape[1]):
         normalizedRows[:,colIdx] = normFactors[colIdx]*normalizedRows[:, colIdx]
     
     return normalizedRows,normFactors
