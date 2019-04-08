@@ -2,48 +2,18 @@
 # this needs to be moved out at some point though 
 
 from shared.utilities import loadLabelled 
-from shared.similarityMethods import normalizeSet, getMostLeastSimilar
+from shared.similarityMethods import normalizeSet, getMostLeastSimilar, precisionRecallValidation
 import matplotlib.pyplot as plt
 import copy
 import numpy as np
+from shared.utilities import printProgressBar
 
-data, labels = loadLabelled('./data/featuresHistogram.pickle')
+dataTrain, labelsTrain = loadLabelled('./data/featuresHistogram.pickle')
+dataTest,  labelsTest  = loadLabelled('./data/featuresHistogramTest.pickle')
+dataTest = dataTest[0:100]
+labelsTest = labelsTest[0:100]
 
+normedTraining, normFactors = normalizeSet(dataTrain)
+normedTest, _ =  normalizeSet(dataTest, existing_norm_factors=normFactors)
 
-normed, factors = normalizeSet(data)
-testDatum = normed[11000,:]
-
-ms,ls,msv,lsv = getMostLeastSimilar(normed,testDatum, qty_most=100, qty_least=100)
-
-
-'''
-means = np.sum(data, axis=0)/data.shape[0]
-
-for colIdx in range(data.shape[1]):
-    dimensionMax = np.max(data[:,colIdx])
-    data[:,colIdx] = (1.0/dimensionMax)*data[:,colIdx]
-
-testDatum = data[11000,:]
-testLabel = labels[11000]
-
-print(testDatum)
-print(testLabel)
-
-def getDistance(vectorA, vectorB):
-    diff = vectorA - vectorB
-    squared = np.square(diff)
-    total = np.sum(squared)
-    norm = np.sqrt(total)
-    return norm
-
-distances = []
-for idx in range(data.shape[0]):
-    distance= getDistance(testDatum, data[idx,:])
-    distances +=[distance]
-
-sortIndices = np.argsort(distances)
-
-sortedLabels = list(np.array(labels)[sortIndices])
-plt.plot(sortedLabels[0:200])
-plt.show()
-'''
+p = precisionRecallValidation(normedTraining, labelsTrain, normedTest, labelsTest, qty_returned=5)
