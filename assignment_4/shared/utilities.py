@@ -19,6 +19,16 @@ def loadLabelled(path):
 
     return saveObj['data'], saveObj['labels']
 
+def saveObj(path, ob):
+    with open(path,'wb') as ofile:
+        pickle.dump(ob, ofile)
+
+
+def loadObj(path):
+    with open(path,'rb') as ifile:
+        ret = pickle.load(ifile)
+    return ret
+
 def printProgressBar (iteration, total, prefix = '', suffix = '', decimals = 1, length = 100, fill = '█'):
     """
     Call in a loop to create terminal progress bar

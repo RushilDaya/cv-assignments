@@ -7,13 +7,16 @@ DATA_NAME_TEST: './data/test_raw.pickle'
 DATA_NAME_PLAY: './data/play_raw.pickle'
 
 DATA_NUM_CLASSES: 10
+DATA_NUM_VALIDATION: 20
+NUM_SIMILAR_RETURNED: 5
+VALIDATION_RESULTS_PATH: './data/validation_results.pickle'
 
 
 # range 0 -> 1 is the error tolerance uniform vectors, normalized amount of tolerable deviation from the means
 UNIFORM_DISTRIBUTION_TOLERANCE: 0.10
 
 
-RUN_HISTOGRAM_FEATURE_EXTRACT: True
+RUN_HISTOGRAM_FEATURE_EXTRACT: False
 HISTOGRAM_FEATURE_PATH_TRAINING: './data/featuresHistogram.pickle'
 HISTOGRAM_FEATURE_PATH_TEST: './data/featuresHistogramTest.pickle'
 HISTOGRAM_BUCKET_RESOLUTION: 30

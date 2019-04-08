@@ -8,9 +8,9 @@ testDataPath = rCon('DATA_NAME_TEST')
 
 
 if rCon('RUN_HISTOGRAM_FEATURE_EXTRACT'):
-    '''loadedFeatures, loadedLabels = loadLabelled(trainingDataPath)
+    loadedFeatures, loadedLabels = loadLabelled(trainingDataPath)
     extractedFeatures,extractedLabels = histogramFeatures(loadedFeatures,loadedLabels,bucket_resolution=rCon('HISTOGRAM_BUCKET_RESOLUTION'))
-    saveLabelled(rCon('HISTOGRAM_FEATURE_PATH_TRAINING'),extractedFeatures,extractedLabels)'''
+    saveLabelled(rCon('HISTOGRAM_FEATURE_PATH_TRAINING'),extractedFeatures,extractedLabels)
 
     loadedFeatures, loadedLabels = loadLabelled(testDataPath)
     extractedFeatures,extractedLabels = histogramFeatures(loadedFeatures,loadedLabels,bucket_resolution=rCon('HISTOGRAM_BUCKET_RESOLUTION'))
