@@ -7,7 +7,7 @@ DATA_NAME_TEST: './data/test_raw.pickle'
 DATA_NAME_PLAY: './data/play_raw.pickle'
 
 DATA_NUM_CLASSES: 10
-DATA_NUM_VALIDATION: 20
+DATA_NUM_VALIDATION: 200
 NUM_SIMILAR_RETURNED: 5
 VALIDATION_RESULTS_PATH: './data/validation_results.pickle'
 
@@ -21,4 +21,9 @@ HISTOGRAM_FEATURE_PATH_TRAINING: './data/featuresHistogram.pickle'
 HISTOGRAM_FEATURE_PATH_TEST: './data/featuresHistogramTest.pickle'
 HISTOGRAM_BUCKET_RESOLUTION: 30
 
-  
+RUN_CONVNET_FEATURE_EXTRACT: False
+CONVNET_FEATURE_PATH_TRAINING: './data/featuresConvnet.pickle'
+CONVNET_FEATURE_PATH_TEST: './data/featuresConvnetTest.pickle'
+CONVNET_MODEL_PATH: './data/convnetModel.pickle'
+CONVNET_TRAIN_EPOCHS: 5
+CONVNET_BATCH_SIZE: 128
