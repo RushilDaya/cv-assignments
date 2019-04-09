@@ -46,3 +46,8 @@ for image in mostSimilarImages:
     plt.imshow(image)
     plt.show()
 
+leastSimilarImages = dbImages[lsIdx].tolist()
+print(lsIdx)
+for image in leastSimilarImages:
+    plt.imshow(image)
+    plt.show()

@@ -43,7 +43,7 @@ def getMostLeastSimilar(dbRows, inputVect, qty_most=10 , qty_least=10  ):
     sortedIndices = np.argsort(similarities)
 
     mostSim = sortedIndices[0:qty_most]
-    leastSim = sortedIndices[-qty_least:-1]
+    leastSim = sortedIndices[-qty_least-1:-1]
     mostSim_values = list(np.array(similarities)[mostSim])
     leastSim_values = list(np.array(similarities)[leastSim])
 
