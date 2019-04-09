@@ -33,3 +33,11 @@ def histogramFeatures(images, labels, bucket_resolution=20 ):
         printProgressBar(idx,numImages,prefix='progress ')
     
     return  featureArray, labels
+
+def singleImageHisto(image, bucket_resolution=20):
+    # used in the data pipline for a single lookup
+
+    colorDepth = image.shape[2]
+    featureVector = np.zeros((colorDepth*bucket_resolution), dtype='float')
+    featureVector[:]=_performHistogramBucketing(image,bucket_resolution,colorDepth)
+    return featureVector

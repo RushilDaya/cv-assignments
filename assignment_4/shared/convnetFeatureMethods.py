@@ -81,3 +81,8 @@ def convNetFeatures(data,labels,model=None):
     flat_data = flat_data/255
     predictions = model.predict(flat_data)
     return predictions, labels
+
+def singleImageConv(image, model):
+    temp_image = image.reshape(1,image.shape[0],image.shape[1],image.shape[2])
+    prediction, label = convNetFeatures(temp_image,None,model=model)
+    return prediction

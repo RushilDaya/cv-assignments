@@ -30,7 +30,7 @@ def _lbfCompute(image, histogram_resolution, points, radius):
     return histo
 
 
-def lbpFeatures(images, labels):
+def lbpFeatures(images, labels, verbose=True):
     lbp_bucket_resolution = rCon('LBP_BUCKET_RESOLUTION')
     lbp_points = rCon('LBP_POINTS')
     lbp_radius = rCon('LBP_RADIUS')
@@ -40,7 +40,13 @@ def lbpFeatures(images, labels):
     flat_images = _flatten(images)
     globalHistogram = np.zeros((numImages, lbp_bucket_resolution), dtype='float')
     for idx in range(numImages):
-        printProgressBar(idx, numImages)
+        if verbose:
+            printProgressBar(idx, numImages)
         globalHistogram[idx,:] = _lbfCompute(flat_images[idx,:,:], lbp_bucket_resolution, lbp_points, lbp_radius)
 
     return globalHistogram, labels
+
+def singleImageLBP(image):
+    temp_image = image.reshape(1,image.shape[0],image.shape[1],image.shape[2])
+    histo,_ = lbpFeatures(temp_image,None, verbose=False)
+    return histo
